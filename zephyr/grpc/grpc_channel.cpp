@@ -21,7 +21,7 @@ class GrpcClosure final : public GrpcCQTag {
       status = Status(StatusCode::RPC_ERROR,
                       "gRpc error: " + ctx_->status.error_message());
     } else {
-      grpc::ProtoBufferReader reader(&ctx_->response_buf);
+      ::grpc::ProtoBufferReader reader(&ctx_->response_buf);
       if (!ctx_->response->ParseFromZeroCopyStream(&reader)) {
         status = Status(StatusCode::PROTO_ERROR, "Bad response.");
       }
@@ -38,14 +38,13 @@ class GrpcClosure final : public GrpcCQTag {
 
 bool GrpcContext::Initialize(const google::protobuf::Message &request) {
   bool own_buffer;
-  grpc::Status s = grpc::GenericSerialize<
-    grpc::ProtoBufferWriter,
-    google::protobuf::Message>(request, &request_buf, &own_buffer);
+  ::grpc::Status s = ::grpc::GenericSerialize<
+    ::grpc::ProtoBufferWriter, google::protobuf::Message>(request, &request_buf, &own_buffer);
   return s.ok();
 }
 
 GrpcChannel::GrpcChannel(const std::string &host_port,
-                         std::shared_ptr<grpc::Channel> raw_channel)
+                         std::shared_ptr<::grpc::Channel> raw_channel)
     : RpcChannel(host_port),
       stub_(raw_channel),
       cq_(GrpcThreadPool::GetInstance()->NextCompletionQueue()) { }
@@ -57,7 +56,7 @@ void GrpcChannel::IssueRpcCall(RpcContext *ctx) {
     return;
   }
 
-  grpc_ctx->context.reset(new grpc::ClientContext);
+  grpc_ctx->context.reset(new ::grpc::ClientContext);
   grpc_ctx->response_reader = stub_.PrepareUnaryCall(
       grpc_ctx->context.get(), grpc_ctx->method, grpc_ctx->request_buf, cq_);
   grpc_ctx->response_reader->StartCall();

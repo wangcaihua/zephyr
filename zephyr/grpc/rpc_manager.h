@@ -6,6 +6,7 @@
 #include <mutex>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 #include <utility>
 
@@ -14,16 +15,21 @@
 #include "zephyr/common/status.h"
 #include "zephyr/zk/server_monitor.h"
 
+using zephyr::common::Status;
+using zephyr::common::StatusCode;
+using zephyr::zk::ServerMonitor;
+using zephyr::common::ZephyrConfig;
+
 namespace zephyr {
 namespace grpc {
 
 class RpcChannel;
 
 struct RpcContext {
-  RpcContext(const std::string &method,
+  RpcContext(std::string method,
              google::protobuf::Message *response,
              std::function<void(const Status &)> done)
-      : method(method), response(response), done(done), num_failures(0) { }
+      : method(std::move(method)), response(response), done(std::move(done)), num_failures(0) { }
 
   virtual bool Initialize(const google::protobuf::Message &request) = 0;
   virtual ~RpcContext() = default;
@@ -38,7 +44,7 @@ struct RpcContext {
 
 class RpcChannel {
  public:
-  explicit RpcChannel(const std::string &host_port) : host_port_(host_port) { }
+  explicit RpcChannel(std::string host_port) : host_port_(std::move(host_port)) { }
 
   virtual ~RpcChannel() = default;
 
@@ -64,9 +70,9 @@ class RpcManager {
             std::bind(&RpcManager::RemoveChannel, this, std::placeholders::_1)
         ) { }
 
-  bool Initialize(std::shared_ptr<common::ServerMonitor> monitor,
+  bool Initialize(std::shared_ptr<ServerMonitor> monitor,
                   size_t shard_index,
-                  const GraphConfig &config = GraphConfig());
+                  const ZephyrConfig &config = ZephyrConfig());
   virtual ~RpcManager();
 
   virtual std::unique_ptr<RpcChannel> CreateChannel(
@@ -106,8 +112,8 @@ class RpcManager {
   bool shutdown_;
   std::thread bad_hosts_cleaner_;
 
-  std::shared_ptr<common::ServerMonitor> monitor_;
-  size_t shard_index_;
+  std::shared_ptr<ServerMonitor> monitor_{};
+  size_t shard_index_{};
   common::ShardCallback shard_callback_;
 };
 

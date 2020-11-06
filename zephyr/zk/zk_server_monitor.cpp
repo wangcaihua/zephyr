@@ -6,18 +6,20 @@
 #include "zephyr/common/string_util.h"
 #include "zephyr/zk/zk_util_cache.h"
 
+
+using zephyr::common::split_string;
+using zephyr::common::join_string;
+
 namespace zephyr {
 namespace zk {
-
 namespace {
-
 bool BytesToMeta(const std::string &bytes, Meta *meta, Meta *shard_meta) {
   if (bytes.empty()) {
     return true;
   }
 
   std::vector<std::string> lines;
-  split_string(bytes, '\n', &lines);
+  zephyr::common::split_string(bytes, '\n', &lines);
   for (const std::string &line : lines) {
     std::vector<std::string> parts;
     int num_parts = split_string(line, ':', &parts);

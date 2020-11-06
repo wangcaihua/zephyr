@@ -11,27 +11,26 @@
 namespace zephyr {
 namespace common {
 
-ZephyrConfig::ZephyrConfig() {
-}
+ZephyrConfig::ZephyrConfig() = default;
 
 bool ZephyrConfig::Load(const std::string& filename) {
   FILE* fp = fopen(filename.c_str(), "rb");
-  if (fp == NULL) {
+  if (fp == nullptr) {
     LOG(INFO) << "Open zephyr config file: " << filename << "failed!";
     return false;
   }
-  char* line = NULL;
+  char* line = nullptr;
   size_t n = 0;
   ssize_t nread = 0;
   while ((nread = getline(&line, &n, fp)) > 0) {
     line[nread] = '\0';
     std::vector<std::string> vec;
-    euler::common::split_string(line, '=', &vec);
+    zephyr::common::split_string(line, '=', &vec);
     if (vec.size() != 2) {
       continue;
     }
-    Add(euler::common::trim("\t\r ", vec[0]),
-        euler::common::trim("\t\r ", vec[1]));
+    Add(zephyr::common::trim("\t\r ", vec[0]),
+        zephyr::common::trim("\t\r ", vec[1]));
   }
   free(line);
   fclose(fp);
@@ -76,10 +75,10 @@ void ZephyrConfig::Remove(const std::string& key) {
 
 std::string ZephyrConfig::DebugString() const {
   std::string out = "{\n";
-  for (auto it = config_.begin(); it != config_.end(); ++it) {
-    out.append(it->first);
+  for (const auto & it : config_) {
+    out.append(it.first);
     out.append(" = ");
-    out.append(it->second);
+    out.append(it.second);
     out.append("\n");
   }
   out.append("}");

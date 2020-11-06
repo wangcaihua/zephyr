@@ -2,6 +2,7 @@
 #define ZEPHYR_STATUS_H_
 
 #include <string>
+#include <utility>
 
 namespace zephyr {
 namespace common {
@@ -17,8 +18,8 @@ class Status {
  public:
   Status() : code_(StatusCode::OK) { }
 
-  Status(StatusCode code, const std::string &message)
-      : code_(code), message_(message) { }
+  Status(StatusCode code, std::string message)
+      : code_(code), message_(std::move(message)) { }
 
   static const Status &OK;
 

@@ -8,12 +8,15 @@
 #include "glog/logging.h"
 #include "zephyr/common/string_util.h"
 #include "zephyr/zk/zk_util_cache.h"
+#include "zookeeper.h"
+
+using zephyr::common::split_string;
+using zephyr::common::join_string;
 
 namespace zephyr {
 namespace zk {
 
 namespace {
-
 std::string MetaToBytes(const Meta &meta, const Meta &shard_meta) {
   std::vector<std::string> lines;
 
@@ -31,7 +34,7 @@ std::string MetaToBytes(const Meta &meta, const Meta &shard_meta) {
   return join_string(lines, "\n");
 }
 
-std::string ShardToBytes(size_t shard_index, const Server server) {
+std::string ShardToBytes(size_t shard_index, const Server& server) {
   return join_string({std::to_string(shard_index), server}, "#");
 }
 

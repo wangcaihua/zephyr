@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 namespace zephyr {
 namespace zk {
@@ -19,7 +20,7 @@ using Server = std::string;
 struct ShardCallback {
   ShardCallback(std::function<void(const Server &)> on_add_server,
                 std::function<void(const Server &)> on_remove_server)
-      : on_add_server(on_add_server), on_remove_server(on_remove_server) { }
+      : on_add_server(std::move(on_add_server)), on_remove_server(std::move(on_remove_server)) { }
 
   std::function<void(const Server &)> on_add_server;
   std::function<void(const Server &)> on_remove_server;

@@ -6,13 +6,14 @@
 #include <mutex>  // NOLINT
 #include <string>
 #include <unordered_map>
+#include <utility>
 
 namespace zephyr {
 namespace zk {
 
 struct ZkInfo {
-  ZkInfo(const std::string &addr, const std::string &path)
-      : addr(addr), path(path) { }
+  ZkInfo(std::string addr, std::string path)
+      : addr(std::move(addr)), path(std::move(path)) { }
 
   bool operator==(const ZkInfo &other) const {
     return addr == other.addr && path == other.path;

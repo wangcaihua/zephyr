@@ -25,7 +25,7 @@ class GrpcThreadPool {
   GrpcThreadPool(GrpcThreadPool const&) = delete;
   void operator=(GrpcThreadPool const&) = delete;
 
-  grpc::CompletionQueue *NextCompletionQueue() {
+  ::grpc::CompletionQueue *NextCompletionQueue() {
     std::lock_guard<std::mutex> lock(mu_);
     return threads_[next_round_robin_assignment_++ %
                     threads_.size()].completion_queue();
@@ -44,7 +44,7 @@ class GrpcThreadPool {
       bool ok = false;
 
       while (completion_queue_.Next(&tag, &ok)) {
-        GrpcCQTag* cq_tag = static_cast<GrpcCQTag*>(tag);
+        auto* cq_tag = static_cast<GrpcCQTag*>(tag);
         cq_tag->OnCompleted(ok);
       }
     }
@@ -54,10 +54,10 @@ class GrpcThreadPool {
       thread_.join();
     }
 
-    grpc::CompletionQueue *completion_queue() { return &completion_queue_; }
+    ::grpc::CompletionQueue *completion_queue() { return &completion_queue_; }
 
    private:
-    grpc::CompletionQueue completion_queue_;
+    ::grpc::CompletionQueue completion_queue_;
     std::thread thread_;
   };
 

@@ -1,20 +1,22 @@
 #include "zephyr/grpc/rpc_client.h"
+
+#include <utility>
 #include "zephyr/grpc/impl_register.h"
 
 namespace zephyr {
 namespace grpc {
 
-bool RpcClientBase::Initialize(std::shared_ptr<common::ServerMonitor> monitor,
-                               size_t shard_index, const GraphConfig &config) {
+bool RpcClientBase::Initialize(std::shared_ptr<zephyr::zk::ServerMonitor> monitor,
+                               size_t shard_index, const zephyr::common::ZephyrConfig &config) {
   config.Get("num_retries", &num_retries_);
   return rpc_manager_ && rpc_manager_->Initialize(monitor, shard_index, config);
 }
 
 void RpcClientBase::IssueRpcCall(const std::string &method,
                                  const google::protobuf::Message &request,
-                                 google::protobuf::Message *respone,
+                                 google::protobuf::Message *response,
                                  std::function<void(const Status &)> done) {
-  RpcContext *ctx = rpc_manager_->CreateContext(method, respone, nullptr);
+  RpcContext *ctx = rpc_manager_->CreateContext(method, response, nullptr);
   ctx->done = [ctx, done, this](const Status &status) {
     if (!status.ok()) {
       rpc_manager_->MoveToBadHost(ctx->destination->host_port());
@@ -28,7 +30,7 @@ void RpcClientBase::IssueRpcCall(const std::string &method,
       DoIssueRpcCall(ctx);
     }
   };
-  if (!(ctx && ctx->Initialize(request))) {
+  if (!((ctx->Initialize(request)))) {
     done(Status(StatusCode::PROTO_ERROR, "Bad request."));
   }
   DoIssueRpcCall(ctx);
@@ -40,10 +42,10 @@ void RpcClientBase::DoIssueRpcCall(RpcContext *ctx) {
 }
 
 std::unique_ptr<RpcClient> NewRpcClient(
-    std::shared_ptr<common::ServerMonitor> monitor, size_t shard_index,
-    const GraphConfig &config) {
+    std::shared_ptr<zephyr::zk::ServerMonitor> monitor, size_t shard_index,
+    const zephyr::common::ZephyrConfig &config) {
   std::unique_ptr<RpcClient> rpc_client(ImplFactory<RpcClient>::New());
-  if (rpc_client && rpc_client->Initialize(monitor, shard_index, config)) {
+  if (rpc_client && rpc_client->Initialize(std::move(monitor), shard_index, config)) {
     return rpc_client;
   } else {
     return nullptr;

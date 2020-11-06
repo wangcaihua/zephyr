@@ -11,16 +11,21 @@
 #include "zephyr/common/status.h"
 #include "zephyr/zk/server_monitor.h"
 
+using zephyr::common::Status;
+using zephyr::common::StatusCode;
+using zephyr::zk::ServerMonitor;
+using zephyr::common::ZephyrConfig;
+
 namespace zephyr {
 namespace grpc {
 
 class RpcClient {
  public:
-  virtual bool Initialize(std::shared_ptr<common::ServerMonitor> monitor,
-                          size_t shard_index, const GraphConfig &config) = 0;
+  virtual bool Initialize(std::shared_ptr<ServerMonitor> monitor,
+                          size_t shard_index, const ZephyrConfig &config) = 0;
   virtual void IssueRpcCall(const std::string &method,
                             const google::protobuf::Message &request,
-                            google::protobuf::Message *respone,
+                            google::protobuf::Message *response,
                             std::function<void(const Status &)> done) = 0;
   virtual ~RpcClient() = default;
 };
@@ -30,8 +35,8 @@ class RpcClientBase : public RpcClient {
   RpcClientBase() : rpc_manager_(ImplFactory<RpcManager>::New()),
                     num_retries_(kRpcRetryCount) { }
 
-  bool Initialize(std::shared_ptr<common::ServerMonitor> monitor,
-                  size_t shard_index, const GraphConfig &config) override;
+  bool Initialize(std::shared_ptr<ServerMonitor> monitor,
+                  size_t shard_index, const ZephyrConfig &config) override;
   void IssueRpcCall(const std::string &method,
                     const google::protobuf::Message &request,
                     google::protobuf::Message *respone,
@@ -47,8 +52,8 @@ class RpcClientBase : public RpcClient {
 };
 
 std::unique_ptr<RpcClient> NewRpcClient(
-    std::shared_ptr<common::ServerMonitor> monitor, size_t shard_index,
-    const GraphConfig &config = GraphConfig());
+    std::shared_ptr<ServerMonitor> monitor, size_t shard_index,
+    const ZephyrConfig &config = ZephyrConfig());
 
 }  // namespace grpc
 }  // namespace zephyr

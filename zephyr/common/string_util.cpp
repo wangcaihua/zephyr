@@ -24,7 +24,7 @@ std::string& trim(const std::string& chars, std::string& str) {
 
 int32_t split_string(const std::string &s, char delim,
                      std::vector<std::string>* v) {
-  if (v == NULL)
+  if (v == nullptr)
     return 0;
   v->clear();
   size_t pos = s.find(delim);

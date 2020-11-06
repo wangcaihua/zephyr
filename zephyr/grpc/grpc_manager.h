@@ -5,6 +5,9 @@
 
 #include "zephyr/grpc/rpc_manager.h"
 
+using zephyr::common::Status;
+using zephyr::common::StatusCode;
+
 namespace zephyr {
 namespace grpc {
 

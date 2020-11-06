@@ -7,8 +7,8 @@
 namespace zephyr {
 namespace grpc {
 
-bool RpcManager::Initialize(std::shared_ptr<common::ServerMonitor> monitor,
-                            size_t shard_index, const GraphConfig &config) {
+bool RpcManager::Initialize(std::shared_ptr<ServerMonitor> monitor,
+                            size_t shard_index, const ZephyrConfig &config) {
   if (monitor_) {
     return true;
   }
