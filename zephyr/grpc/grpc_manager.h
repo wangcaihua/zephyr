@@ -17,7 +17,7 @@ class GrpcManager : public RpcManager {
 
   RpcContext *CreateContext(
       const std::string &method,
-      google::protobuf::Message *respone,
+      google::protobuf::Message *response,
       std::function<void(const Status &)> done) override;
 };
 

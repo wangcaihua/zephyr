@@ -39,5 +39,4 @@
 # builder
 cmake-build-debug/
 build/
-third_party/
 

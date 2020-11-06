@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package zephyr;
+option go_package = "pb/zephyr";
+
+
+message PullReq {
+    repeated int64 fids = 1;
+}
+
+message PullResp {
+    repeated int32 indices = 1;
+    repeated float values = 2;
+    bool state =3;
+}
+
+message PushReq {
+    repeated int64 fids = 1;
+    repeated int32 indices = 2;
+    repeated float values = 3;
+}
+
+message OptConf {
+
+}
+
+message CreateSlotReq {
+    int64 slot = 1;
+    string name = 2;
+    OptConf opt_conf = 3;
+}
+
+message GetMetaResp {
+    repeated int64 slot = 1;
+    repeated string name = 2;
+    repeated OptConf opt_conf = 3;
+    bool state = 4;
+}
+
+message NullReq {
+
+}
+
+message NullResp {
+    bool state = 1;
+}
+
+message LoadReq {
+    string load_path = 1;
+}
+
+message DumpReq {
+    string dump_path = 1;
+}
+
+
+service Zephyr {
+    rpc pull(PullReq) returns (PullResp);
+    rpc push(PushReq) returns (NullResp);
+    rpc create_slot(CreateSlotReq) returns (NullResp);
+    rpc get_meta(NullReq) returns (GetMetaResp);
+    rpc load(LoadReq) returns (NullResp);
+    rpc dump(NullReq) returns (NullResp);
+}

@@ -30,4 +30,17 @@ include_directories(SYSTEM
         ${GRPC_INCLUDE_DIRS}
         ${ZOOKEEPER_INCLUDE_DIRS})
 
-add_subdirectory(zephyr)
+file(GLOB_RECURSE sources zephyr/zk/*.cpp zephyr/zh/*.h zephyr/client/*.cpp zephyr/client/*.h
+        zephyr/grpc/*.h zephyr/grpc/*.cpp zephyr/kernels/*.h zephyr/kernels/*.cpp
+        zephyr/ops/*.h zephyr/ops/*.cpp zephyr/common/*.h zephyr/common/*.cpp)
+
+
+add_library(ZephyrClient SHARED ${sources})
+
+# just for example add some compiler flags
+target_compile_options(ZephyrClient PUBLIC -std=c++1y -Wall -Wfloat-conversion -D_GLIBCXX_USE_CXX11_ABI=0)
+
+# this lets me include files relative to the root src dir with a <> pair
+target_include_directories(ZephyrClient PUBLIC /zephyr)
+
+

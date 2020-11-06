@@ -12,9 +12,9 @@ namespace grpc {
 
 struct GrpcContext: public RpcContext {
   GrpcContext(const std::string &method,
-              google::protobuf::Message *respone,
+              google::protobuf::Message *response,
               std::function<void(const Status &)> done)
-      : RpcContext(method, respone, done) { }
+      : RpcContext(method, response, done) { }
 
   bool Initialize(const google::protobuf::Message &request);
 

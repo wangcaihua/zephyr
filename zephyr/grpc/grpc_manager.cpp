@@ -20,9 +20,9 @@ std::unique_ptr<RpcChannel> GrpcManager::CreateChannel(
 }
 
 RpcContext *GrpcManager::CreateContext(
-    const std::string &method, google::protobuf::Message *respone,
+    const std::string &method, google::protobuf::Message *response,
     std::function<void(const Status &)> done) {
-  return new GrpcContext(method, respone, done);
+  return new GrpcContext(method, response, done);
 }
 
 }  // namespace grpc
