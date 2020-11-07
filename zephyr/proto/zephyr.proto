@@ -3,6 +3,7 @@ syntax = "proto3";
 package zephyr.proto;
 option go_package = "pb/zephyr";
 
+import "proto/opt_cfg.proto";
 
 message PullReq {
     repeated int64 fids = 1;
@@ -18,10 +19,6 @@ message PushReq {
     repeated int64 fids = 1;
     repeated int32 indices = 2;
     repeated float values = 3;
-}
-
-message OptConf {
-
 }
 
 message CreateSlotReq {
