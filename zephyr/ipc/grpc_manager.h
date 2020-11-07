@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "zephyr/grpc/rpc_manager.h"
+#include "zephyr/ipc/rpc_manager.h"
 
 using zephyr::common::Status;
 using zephyr::common::StatusCode;

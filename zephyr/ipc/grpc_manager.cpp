@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "zephyr/grpc/grpc_channel.h"
+#include "zephyr/ipc/grpc_channel.h"
 
 namespace zephyr {
 namespace grpc {

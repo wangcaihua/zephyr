@@ -1,7 +1,7 @@
 #include "zephyr/grpc/rpc_client.h"
 
 #include <utility>
-#include "zephyr/grpc/impl_register.h"
+#include "zephyr/ipc/impl_register.h"
 
 namespace zephyr {
 namespace grpc {

@@ -6,8 +6,8 @@
 #include "google/protobuf/message.h"
 
 #include "zephyr/common/zephyr_config.h"
-#include "zephyr/grpc/impl_register.h"
-#include "zephyr/grpc/rpc_manager.h"
+#include "zephyr/ipc/impl_register.h"
+#include "zephyr/ipc/rpc_manager.h"
 #include "zephyr/common/status.h"
 #include "zephyr/zk/server_monitor.h"
 

@@ -1,8 +1,8 @@
-#include "zephyr/grpc/grpc_channel.h"
+#include "zephyr/ipc/grpc_channel.h"
 
 #include "glog/logging.h"
 #include "grpcpp/impl/codegen/proto_utils.h"
-#include "zephyr/grpc/grpc_thread_pool.h"
+#include "zephyr/ipc/grpc_thread_pool.h"
 
 namespace zephyr {
 namespace grpc {

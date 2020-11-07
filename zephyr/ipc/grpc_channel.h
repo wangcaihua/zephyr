@@ -6,7 +6,7 @@
 
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/grpcpp.h"
-#include "zephyr/grpc/rpc_manager.h"
+#include "zephyr/ipc/rpc_manager.h"
 
 using zephyr::common::Status;
 using zephyr::common::StatusCode;

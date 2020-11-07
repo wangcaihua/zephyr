@@ -1,8 +1,8 @@
 #include "zephyr/grpc/rpc_manager.h"
 
 #include "glog/logging.h"
-#include "zephyr/grpc/impl_register.h"
-#include "zephyr/grpc/grpc_manager.h"
+#include "zephyr/ipc/impl_register.h"
+#include "zephyr/ipc/grpc_manager.h"
 
 namespace zephyr {
 namespace grpc {

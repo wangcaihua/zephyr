@@ -9,6 +9,8 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0 -O3 -fno-omit-frame-pointer)
+add_definitions(-Wall -Wextra)
+
 
 find_package(Threads)
 
@@ -24,23 +26,14 @@ include(zookeeper)
 include_directories(${GTEST_INCLUDE_DIRS}
         ${GLOG_INCLUDE_DIRS}
         ${CMAKE_CURRENT_BINARY_DIR}
+        ${linenoise_INCLUDE_DIRS}
         .)
 include_directories(SYSTEM
         ${PROTOBUF_INCLUDE_DIRS}
         ${GRPC_INCLUDE_DIRS}
         ${ZOOKEEPER_INCLUDE_DIRS})
 
-file(GLOB_RECURSE sources zephyr/zk/*.cpp zephyr/zh/*.h zephyr/client/*.cpp zephyr/client/*.h
-        zephyr/grpc/*.h zephyr/grpc/*.cpp zephyr/kernels/*.h zephyr/kernels/*.cpp
-        zephyr/ops/*.h zephyr/ops/*.cpp zephyr/common/*.h zephyr/common/*.cpp)
-
-
-add_library(ZephyrClient SHARED ${sources})
-
-# just for example add some compiler flags
-target_compile_options(ZephyrClient PUBLIC -std=c++1y -Wall -Wfloat-conversion -D_GLIBCXX_USE_CXX11_ABI=0)
-
-# this lets me include files relative to the root src dir with a <> pair
-target_include_directories(ZephyrClient PUBLIC /zephyr)
+# Add subdirectories
+add_subdirectory(zephyr)
 
 

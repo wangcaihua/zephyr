@@ -50,8 +50,8 @@ bool ZkServerRegister::Initialize() {
       return true;
     }
 
-    zhandle_t *zh = zookeeper_init2(zk_addr_.c_str(), Watcher, 60000, nullptr,
-                                    this, 0, ZkLogCallback);
+    zhandle_t *zh = zookeeper_init2(zk_addr_.c_str(), Watcher, 60000,
+            nullptr, this, 0, ZkLogCallback);
     if (zh == nullptr) {
       LOG(ERROR) << "Fail to initialize ZK connection.";
       return false;
@@ -59,8 +59,8 @@ bool ZkServerRegister::Initialize() {
     zk_handle_ = zh;
   }
 
-  int rc = zoo_create(zk_handle_, zk_path_.c_str(), "", 0, &ZOO_OPEN_ACL_UNSAFE,
-                      0, nullptr, 0);
+  int rc = zoo_create(zk_handle_, zk_path_.c_str(), "", 0,
+          &ZOO_OPEN_ACL_UNSAFE, 0, nullptr, 0);
   if (rc != ZOK && rc != ZNODEEXISTS) {
     LOG(ERROR) << "ZK error when creating root node: " << zerror(rc) << ".";
   }

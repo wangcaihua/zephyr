@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package zephyr;
+package zephyr.proto;
 option go_package = "pb/zephyr";
 
 
