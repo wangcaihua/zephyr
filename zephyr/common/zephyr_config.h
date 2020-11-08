@@ -1,31 +1,31 @@
 #ifndef ZEPHYR_CONFIG_H_
 #define ZEPHYR_CONFIG_H_
 
-#include <string>
-#include <map>
+#include "zephyr/utils/imports.h"
 
 namespace zephyr {
 namespace common {
 
 class ZephyrConfig {
- public:
+public:
   ZephyrConfig();
 
-  bool Load(const std::string& filename);
+  bool Load(const string &filename);
 
-  bool Get(const std::string& key, std::string* value) const;
-  bool Get(const std::string& key, int* value) const;
-  void Add(const std::string& key, const std::string& value);
-  void Add(const std::string& key, int value);
-  void Remove(const std::string& key);
+  bool Get(const string &key, string *value) const;
+  bool Get(const string &key, int *value) const;
+  bool Get(const string &key, Duration *value) const;
+  void Add(const string &key, const string &value);
+  void Add(const string &key, int value);
+  void Remove(const string &key);
 
-  std::string DebugString() const;
+  string DebugString() const;
 
- private:
-  std::map<std::string, std::string> config_;
+private:
+  map<string, string> config_;
 };
 
-}  // namespace common
-}  // namespace zephyr
+} // namespace common
+} // namespace zephyr
 
-#endif  // ZEPHYR_CONFIG_H_
+#endif // ZEPHYR_CONFIG_H_

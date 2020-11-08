@@ -6,9 +6,9 @@
 #include <mutex>  // NOLINT
 #include <utility>
 
-#include "zookeeper.h"  // NOLINT
-#include "zephyr/zk/server_register.h"
+#include "zephyr/common/server_register.h"
 #include "zephyr/zk/zk_util_cache.h"
+#include "zookeeper.h" // NOLINT
 
 namespace zephyr {
 namespace zk {

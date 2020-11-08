@@ -1,8 +1,7 @@
 #ifndef ZEPHYR_STATUS_H_
 #define ZEPHYR_STATUS_H_
 
-#include <string>
-#include <utility>
+#include "zephyr/utils/imports.h"
 
 namespace zephyr {
 namespace common {
@@ -15,24 +14,25 @@ enum StatusCode {
 };
 
 class Status {
- public:
-  Status() : code_(StatusCode::OK) { }
+public:
+  Status() : code_(StatusCode::OK) {}
 
-  Status(StatusCode code, std::string message)
-      : code_(code), message_(std::move(message)) { }
+  Status(StatusCode code, string message)
+      : code_(code), message_(move(message)) {}
 
   static const Status &OK;
 
   bool ok() const { return code_ == StatusCode::OK; }
 
-  std::string message() const { return message_; }
+  string message() const { return message_; }
 
- private:
+private:
   StatusCode code_;
-  std::string message_;
+  string message_;
 };
 
-}  // namespace common
-}  // namespace zephyr
+using DoneCallBack = function<void(const Status &)>;
+} // namespace common
+} // namespace zephyr
 
-#endif  // ZEPHYR_STATUS_H_
+#endif // ZEPHYR_STATUS_H_

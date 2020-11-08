@@ -1,30 +1,32 @@
 #ifndef ZEPHYR_GRPC_MANAGER_H_
 #define ZEPHYR_GRPC_MANAGER_H_
 
-#include <string>
-
-#include "zephyr/ipc/rpc_manager.h"
-
-using zephyr::common::Status;
-using zephyr::common::StatusCode;
+#include "grpcpp/grpcpp.h"
+#include "zephyr/common/rpc_manager.h"
 
 namespace zephyr {
 namespace grpc {
 
+using ::grpc::Channel;
+using ::grpc::ChannelArguments;
+using ::grpc::ClientContext;
+using zephyr::common::DoneCallBack;
+using zephyr::common::RpcChannel;
+using zephyr::common::RpcContext;
+using zephyr::common::RpcManager;
+
 class GrpcManager : public RpcManager {
- public:
-  GrpcManager() : RpcManager() { }
+public:
+  GrpcManager() : RpcManager() {}
 
-  std::unique_ptr<RpcChannel> CreateChannel(
-       const std::string &host_port, int tag) override;
+  unique_ptr<RpcChannel> CreateChannel(const string &host_port,
+                                       int tag) override;
 
-  RpcContext *CreateContext(
-      const std::string &method,
-      google::protobuf::Message *response,
-      std::function<void(const Status &)> done) override;
+  RpcContext *CreateContext(const string &method, Message *response,
+                            DoneCallBack done) override;
 };
 
-}  // namespace grpc
-}  // namespace zephyr
+} // namespace grpc
+} // namespace zephyr
 
-#endif  // ZEPHYR_GRPC_MANAGER_H_
+#endif // ZEPHYR_GRPC_MANAGER_H_

@@ -1,3 +1,4 @@
 file(GLOB_RECURSE com_files *.cpp *.h)
+file(GLOB_RECURSE utils_files ../utils/*.cpp ../utils/*.h)
 
-add_library(common STATIC ${com_files} ../server/hopscotch_hash_set.cpp ../server/hopscotch_hash_set.h ../server/double_hash.cpp ../server/double_hash.h ../server/sliding_hash_filter.cpp ../server/sliding_hash_filter.h ../server/filter.h ../server/hash_filter.h ../server/crowd_hash.h ../server/double_hash_conf.h ../server/double_hash_common.h ../server/ops/Loader.cpp ../server/ops/Loader.h ../server/ops/Dumper.cpp ../server/ops/Dumper.h)
+add_library(common STATIC ${com_files} ${utils_files})

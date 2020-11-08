@@ -1,28 +1,28 @@
-#include "zephyr/grpc/grpc_manager.h"
-
-#include <string>
-
+#include "zephyr/ipc/grpc_manager.h"
+#include "zephyr/common/impl_register.h"
 #include "zephyr/ipc/grpc_channel.h"
 
 namespace zephyr {
 namespace grpc {
 
-std::unique_ptr<RpcChannel> GrpcManager::CreateChannel(
-    const std::string &host_port, int tag) {
-  ::grpc::ChannelArguments args;
+using zephyr::common::ImplFactory;
+
+unique_ptr<RpcChannel> GrpcManager::CreateChannel(const string &host_port,
+                                                  int tag) {
+  ChannelArguments args;
   args.SetMaxReceiveMessageSize(-1);
   args.SetInt("tag", tag);
-  std::shared_ptr<::grpc::Channel> raw_channel =
-      ::grpc::CreateCustomChannel(host_port,
-                                ::grpc::InsecureChannelCredentials(), args);
-  return std::unique_ptr<RpcChannel>(new GrpcChannel(host_port, raw_channel));
+  shared_ptr<Channel> raw_channel = ::grpc::CreateCustomChannel(
+      host_port, ::grpc::InsecureChannelCredentials(), args);
+  return unique_ptr<RpcChannel>(new GrpcChannel(host_port, raw_channel));
 }
 
-RpcContext *GrpcManager::CreateContext(
-    const std::string &method, google::protobuf::Message *response,
-    std::function<void(const Status &)> done) {
+RpcContext *GrpcManager::CreateContext(const string &method, Message *response,
+                                       DoneCallBack done) {
   return new GrpcContext(method, response, done);
 }
 
-}  // namespace grpc
-}  // namespace zephyr
+REGISTER_IMPL(RpcManager, GrpcManager);
+
+} // namespace grpc
+} // namespace zephyr

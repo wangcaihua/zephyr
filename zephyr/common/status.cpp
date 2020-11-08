@@ -3,7 +3,7 @@
 namespace zephyr {
 namespace common {
 
-const Status& Status::OK = Status();
+const Status &Status::OK = Status();
 
-}  // namespace common
-}  // namespace zephyr
+} // namespace common
+} // namespace zephyr

@@ -7,7 +7,7 @@
 
 #include "zookeeper.h"  // NOLINT
 
-#include "zephyr/zk/server_monitor.h"
+#include "zephyr/common/server_monitor.h"
 #include "zephyr/zk/zk_util_cache.h"
 
 namespace zephyr {

@@ -1,47 +1,43 @@
 #ifndef ZEPHYR_GRPC_CHANNEL_H_
 #define ZEPHYR_GRPC_CHANNEL_H_
 
-#include <string>
-#include <utility>
-
 #include "grpcpp/generic/generic_stub.h"
-#include "grpcpp/grpcpp.h"
-#include "zephyr/ipc/rpc_manager.h"
-
-using zephyr::common::Status;
-using zephyr::common::StatusCode;
+#include "zephyr/ipc/grpc_manager.h"
 
 namespace zephyr {
 namespace grpc {
 
-struct GrpcContext: public RpcContext {
-  GrpcContext(const std::string &method,
-              google::protobuf::Message *response,
-              std::function<void(const Status &)> done)
-      : RpcContext(method, response, std::move(done)) { }
+using ::grpc::ByteBuffer;
+using ::grpc::CompletionQueue;
+using ::grpc::GenericStub;
+using GrpcStatus = ::grpc::Status;
+using ::grpc::GenericClientAsyncResponseReader;
 
-  bool Initialize(const google::protobuf::Message &request) override;
+struct GrpcContext : public RpcContext {
+  GrpcContext(const string &method, Message *response, DoneCallBack done)
+      : RpcContext(method, response, move(done)) {}
 
-  ::grpc::ByteBuffer request_buf;
-  ::grpc::ByteBuffer response_buf;
-  ::grpc::Status status;
-  std::unique_ptr<::grpc::ClientContext> context;
-  std::unique_ptr<::grpc::GenericClientAsyncResponseReader> response_reader;
+  bool Initialize(const Message &request) override;
+
+  ByteBuffer request_buf;
+  ByteBuffer response_buf;
+  GrpcStatus status;
+  unique_ptr<ClientContext> context;
+  unique_ptr<GenericClientAsyncResponseReader> response_reader;
 };
 
-class GrpcChannel: public RpcChannel {
- public:
-  GrpcChannel(const std::string& host_port,
-              std::shared_ptr<::grpc::Channel> raw_channel);
+class GrpcChannel : public RpcChannel {
+public:
+  GrpcChannel(const string &host_port, const shared_ptr<Channel>& raw_channel);
 
   void IssueRpcCall(RpcContext *ctx) override;
 
- private:
-  ::grpc::GenericStub stub_;
-  ::grpc::CompletionQueue *cq_;
+private:
+  GenericStub stub_;
+  CompletionQueue *cq_;
 };
 
-}  // namespace grpc
-}  // namespace zephyr
+} // namespace grpc
+} // namespace zephyr
 
-#endif  // ZEPHYR_GRPC_CHANNEL_H_
+#endif // ZEPHYR_GRPC_CHANNEL_H_
