@@ -1,32 +1,26 @@
 #include "zephyr/zk/zk_server_monitor.h"
-
-#include <vector>
-
 #include "glog/logging.h"
-#include "zephyr/utils/string_util.h"
-#include "zephyr/zk/zk_util_cache.h"
-
-
-using zephyr::common::split_string;
-using zephyr::common::join_string;
 
 namespace zephyr {
 namespace zk {
+using zephyr::common::ServerMonitor;
+
 namespace {
-bool BytesToMeta(const std::string &bytes, Meta *meta, Meta *shard_meta) {
+
+bool BytesToMeta(const string &bytes, Meta *meta, Meta *shard_meta) {
   if (bytes.empty()) {
     return true;
   }
 
-  std::vector<std::string> lines;
-  zephyr::common::split_string(bytes, '\n', &lines);
-  for (const std::string &line : lines) {
-    std::vector<std::string> parts;
+  vector<string> lines;
+  split_string(bytes, '\n', &lines);
+  for (const string &line : lines) {
+    vector<string> parts;
     int num_parts = split_string(line, ':', &parts);
     if (num_parts == 2) {
-      meta->emplace(std::move(parts[0]), std::move(parts[1]));
+      meta->emplace(move(parts[0]), move(parts[1]));
     } else if (num_parts == 3) {
-      shard_meta->emplace(std::move(parts[1]), std::move(parts[2]));
+      shard_meta->emplace(move(parts[1]), move(parts[2]));
     } else {
       LOG(WARNING) << "Invalid meta information: " << line << ".";
     }
@@ -34,26 +28,25 @@ bool BytesToMeta(const std::string &bytes, Meta *meta, Meta *shard_meta) {
   return true;
 }
 
-bool BytesToShard(const std::string &bytes,
-                  size_t *shard_index, Server *server) {
-  std::vector<std::string> parts;
+bool BytesToShard(const string &bytes, size_t *shard_index, Server *server) {
+  vector<string> parts;
   if (split_string(bytes, '#', &parts) != 2) {
     return false;
   }
 
   try {
-    *shard_index = std::stoul(parts[0]);
+    *shard_index = stoul(parts[0]);
   } catch (std::invalid_argument e) {
     return false;
   }
-  *server = std::move(parts[1]);
+  *server = move(parts[1]);
   return true;
 }
 
 template <typename t>
-void SetDifference(const std::unordered_set<t> &input1,
-                    const std::unordered_set<t> &input2,
-                    std::function<void(const t &)> fn) {
+void SetDifference(const unordered_set<t> &input1,
+                   const unordered_set<t> &input2,
+                   function<void(const t &)> fn) {
   for (const t &element : input1) {
     if (input2.find(element) == input2.end()) {
       fn(element);
@@ -61,13 +54,13 @@ void SetDifference(const std::unordered_set<t> &input1,
   }
 }
 
-void ZkLogCallback(const char * /*message*/) { }
+void ZkLogCallback(const char * /*message*/) {}
 
-}  // namespace
+} // namespace
 
 bool ZkServerMonitor::Initialize() {
   {
-    std::lock_guard<std::mutex> lock(zk_mu_);
+    lock_guard<mutex> lock(zk_mu_);
 
     if (zk_handle_) {
       return true;
@@ -92,26 +85,26 @@ bool ZkServerMonitor::Initialize() {
 }
 
 ZkServerMonitor::~ZkServerMonitor() {
-  std::lock_guard<std::mutex> lock(zk_mu_);
+  lock_guard<mutex> lock(zk_mu_);
   zookeeper_close(zk_handle_);
   zk_handle_ = nullptr;
 }
 
-void ZkServerMonitor::Watcher(
-    zhandle_t *zh, int /*type*/, int state, const char * /*path*/, void *data) {
+void ZkServerMonitor::Watcher(zhandle_t *zh, int /*type*/, int state,
+                              const char * /*path*/, void *data) {
   if (state == ZOO_EXPIRED_SESSION_STATE) {
     zookeeper_close(zh);
 
     auto *self = static_cast<ZkServerMonitor *>(data);
     {
-      std::lock_guard<std::mutex> lock(self->zk_mu_);
+      lock_guard<mutex> lock(self->zk_mu_);
 
       self->zk_handle_ = nullptr;
       while (self->zk_handle_ == nullptr) {
         LOG(WARNING) << "Reconnecting ZK ...";
-        self->zk_handle_ = zookeeper_init2(self->zk_addr_.c_str(), Watcher,
-                                           60000, nullptr, self, 0,
-                                           ZkLogCallback);
+        self->zk_handle_ =
+            zookeeper_init2(self->zk_addr_.c_str(), Watcher, 60000, nullptr,
+                            self, 0, ZkLogCallback);
       }
     }
 
@@ -123,10 +116,10 @@ void ZkServerMonitor::Watcher(
   }
 }
 
-void ZkServerMonitor::RootCallback(
-    int rc, const struct Stat * /*stat*/, const void *data) {
+void ZkServerMonitor::RootCallback(int rc, const struct Stat * /*stat*/,
+                                   const void *data) {
   if (rc == ZOK) {
-    auto* self = (ZkServerMonitor *) data;
+    auto *self = (ZkServerMonitor *)data;
     int rc = zoo_awget_children(self->zk_handle_, self->zk_path_.c_str(),
                                 ChildWatcher, self, ChildCallback, self);
     if (rc != ZOK) {
@@ -138,10 +131,10 @@ void ZkServerMonitor::RootCallback(
   }
 }
 
-void ZkServerMonitor::RootWatcher(
-    zhandle_t * /*zh*/, int type, int /*state*/, const char * /*path*/, void *data) {
+void ZkServerMonitor::RootWatcher(zhandle_t * /*zh*/, int type, int /*state*/,
+                                  const char * /*path*/, void *data) {
   if (type == ZOO_CREATED_EVENT) {
-    auto *self = (ZkServerMonitor *) data;
+    auto *self = (ZkServerMonitor *)data;
     int rc = zoo_awget_children(self->zk_handle_, self->zk_path_.c_str(),
                                 ChildWatcher, self, ChildCallback, self);
     if (rc != ZOK) {
@@ -157,22 +150,20 @@ void ZkServerMonitor::RootWatcher(
   }
 }
 
-void ZkServerMonitor::ChildCallback(
-    int rc, const struct String_vector *strings, const void *data) {
+void ZkServerMonitor::ChildCallback(int rc, const struct String_vector *strings,
+                                    const void *data) {
   if (rc == ZOK) {
-    auto *self = (ZkServerMonitor *) data;
-    std::unordered_set<std::string> new_children(
-        strings->data, strings->data + strings->count);
+    auto *self = (ZkServerMonitor *)data;
+    unordered_set<string> new_children(strings->data,
+                                       strings->data + strings->count);
 
     using namespace std::placeholders;
-    SetDifference<std::string>(
-        new_children, self->children_,
-        std::bind(&ZkServerMonitor::OnAddChild, self, _1));
-    SetDifference<std::string>(
-        self->children_, new_children,
-        std::bind(&ZkServerMonitor::OnRemoveChild, self, _1));
+    SetDifference<string>(new_children, self->children_,
+                          bind(&ZkServerMonitor::OnAddChild, self, _1));
+    SetDifference<string>(self->children_, new_children,
+                          bind(&ZkServerMonitor::OnRemoveChild, self, _1));
 
-    self->children_ = std::move(new_children);
+    self->children_ = move(new_children);
   } else if (rc == ZNONODE) {
     // ZOO_DELETED_EVENT should be fired to watcher.
     LOG(WARNING) << "ZK root node get deleted.";
@@ -181,9 +172,8 @@ void ZkServerMonitor::ChildCallback(
   }
 }
 
-void ZkServerMonitor::ChildWatcher(
-    zhandle_t * /*zh*/, int type, int /*state*/, const char * /*path*/,
-    void *data) {
+void ZkServerMonitor::ChildWatcher(zhandle_t * /*zh*/, int type, int /*state*/,
+                                   const char * /*path*/, void *data) {
   auto *self = static_cast<ZkServerMonitor *>(data);
   if (type == ZOO_CHILD_EVENT) {
     int rc = zoo_awget_children(self->zk_handle_, self->zk_path_.c_str(),
@@ -200,16 +190,16 @@ void ZkServerMonitor::ChildWatcher(
   }
 }
 
-using ZkShardClosure = std::pair<ZkServerMonitor *, size_t>;
+using ZkShardClosure = pair<ZkServerMonitor *, size_t>;
 
-void ZkServerMonitor::MetaCallback(
-    int rc, const char *value, int value_len, const struct Stat * /*stat*/,
-    const void *data) {
+void ZkServerMonitor::MetaCallback(int rc, const char *value, int value_len,
+                                   const struct Stat * /*stat*/,
+                                   const void *data) {
   if (rc == ZOK) {
-    std::unique_ptr<ZkShardClosure> closure((ZkShardClosure *) data);
+    unique_ptr<ZkShardClosure> closure((ZkShardClosure *)data);
     ZkServerMonitor *self = closure->first;
     size_t shard_index = closure->second;
-    std::string meta_bytes(value, value_len);
+    string meta_bytes(value, value_len);
     Meta meta, shard_meta;
     BytesToMeta(meta_bytes, &meta, &shard_meta);
     self->UpdateMeta(meta);
@@ -220,7 +210,7 @@ void ZkServerMonitor::MetaCallback(
   }
 }
 
-void ZkServerMonitor::OnAddChild(const std::string &child) {
+void ZkServerMonitor::OnAddChild(const string &child) {
   LOG(INFO) << "Online node: " << child << ".";
 
   size_t shard_index;
@@ -235,7 +225,7 @@ void ZkServerMonitor::OnAddChild(const std::string &child) {
   }
 }
 
-void ZkServerMonitor::OnRemoveChild(const std::string &child) {
+void ZkServerMonitor::OnRemoveChild(const string &child) {
   LOG(INFO) << "Offline node: " << child << ".";
 
   size_t shard_index;
@@ -245,10 +235,10 @@ void ZkServerMonitor::OnRemoveChild(const std::string &child) {
   }
 }
 
-std::shared_ptr<ServerMonitor> GetServerMonitor(const std::string& zk_addr,
-                                                const std::string& zk_path) {
+shared_ptr<ServerMonitor> GetServerMonitor(const string &zk_addr,
+                                           const string &zk_path) {
   return GetOrCreate<ZkServerMonitor>(zk_addr, zk_path);
 }
 
-}  // namespace zk
-}  // namespace zephyr
+} // namespace zk
+} // namespace zephyr
